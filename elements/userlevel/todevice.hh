@@ -90,7 +90,7 @@ class ToDevice : public Element { public:
 
     const char *class_name() const		{ return "ToDevice"; }
     const char *port_count() const		{ return "1/0-2"; }
-    const char *processing() const		{ return "l/h"; }
+    const char *processing() const		{ return "a/h"; }
     const char *flags() const			{ return "S2"; }
 
     int configure_phase() const { return KernelFilter::CONFIGURE_PHASE_TODEVICE; }
@@ -104,6 +104,7 @@ class ToDevice : public Element { public:
 
     bool run_task(Task *);
     void selected(int fd, int mask);
+    void push(int port, Packet*);
 
   protected:
 
