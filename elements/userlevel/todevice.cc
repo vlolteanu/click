@@ -142,7 +142,8 @@ ToDevice::find_fromdevice() const
 int
 ToDevice::initialize(ErrorHandler *errh)
 {
-    _timer.initialize(this);
+    if (input_is_pull(0))
+        _timer.initialize(this);
 
     FromDevice *fd = find_fromdevice();
     if (fd && _method == method_default) {
@@ -253,8 +254,11 @@ ToDevice::initialize(ErrorHandler *errh)
 	return errh->error("duplicate writer for device %<%s%>", _ifname.c_str());
     used = this;
 
-    ScheduleInfo::join_scheduler(this, &_task, errh);
-    _signal = Notifier::upstream_empty_signal(this, 0, &_task);
+    if (input_is_pull(0))
+    {
+        ScheduleInfo::join_scheduler(this, &_task, errh);
+        _signal = Notifier::upstream_empty_signal(this, 0, &_task);
+    }
     return 0;
 }
 
@@ -441,6 +445,25 @@ ToDevice::add_handlers()
     add_read_handler("signal", read_param, h_signal);
     add_read_handler("q", read_param, h_q);
     add_write_handler("debug", write_param, h_debug);
+}
+
+void
+ToDevice::push(int, Packet *p)
+{
+    int r;
+
+retry:
+    r = send_packet(p);
+    if (r >= 0)
+        checked_output_push(0, p);
+    else
+    {
+#if TODEVICE_ALLOW_NETMAP
+        if (_method == method_netmap)
+            ioctl(_fd, NIOCTXSYNC, NULL);
+#endif
+        goto retry;
+    }
 }
 
 CLICK_ENDDECLS
