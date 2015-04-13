@@ -63,7 +63,7 @@ FromDevice::FromDevice()
 #if FROMDEVICE_ALLOW_PCAP
       _pcap(0), _pcap_complaints(0),
 #endif
-      _datalink(-1), _count(0), _promisc(0), _snaplen(0)
+      _datalink(-1), _count(0), _promisc(0), _zero_copy(0), _snaplen(0)
 {
 #if FROMDEVICE_ALLOW_LINUX || FROMDEVICE_ALLOW_PCAP || FROMDEVICE_ALLOW_NETMAP
     _fd = -1;
@@ -77,7 +77,7 @@ FromDevice::~FromDevice()
 int
 FromDevice::configure(Vector<String> &conf, ErrorHandler *errh)
 {
-    bool promisc = false, outbound = false, sniffer = true, timestamp = true;
+    bool promisc = false, outbound = false, sniffer = true, timestamp = true, zero_copy = false;
     _protocol = 0;
     _snaplen = default_snaplen;
     _headroom = Packet::default_headroom;
@@ -101,6 +101,7 @@ FromDevice::configure(Vector<String> &conf, ErrorHandler *errh)
 	.read("ENCAP", WordArg(), encap_type).read_status(has_encap)
 	.read("BURST", _burst)
 	.read("TIMESTAMP", timestamp)
+        .read("ZERO_COPY", zero_copy)
 	.complete() < 0)
 	return -1;
     if (_snaplen > 65535 || _snaplen < 14)
@@ -154,6 +155,7 @@ FromDevice::configure(Vector<String> &conf, ErrorHandler *errh)
     _promisc = promisc;
     _outbound = outbound;
     _timestamp = timestamp;
+    _zero_copy = zero_copy;
     return 0;
 }
 
@@ -472,14 +474,24 @@ FromDevice::emit_packet(WritablePacket *p, int extra_len, const Timestamp &ts)
 #if FROMDEVICE_ALLOW_PCAP
 CLICK_ENDDECLS
 extern "C" {
+
+static void
+simple_destructor(unsigned char*, size_t, void*)
+{
+}
+
 void
 FromDevice_get_packet(u_char* clientdata,
 		      const struct pcap_pkthdr* pkthdr,
 		      const u_char* data)
 {
     FromDevice *fd = (FromDevice *) clientdata;
-    WritablePacket *p = Packet::make(fd->_headroom, data, pkthdr->caplen, 0);
+    WritablePacket *p;
     Timestamp ts = Timestamp::uninitialized_t();
+    if (fd->_zero_copy)
+        p = Packet::make(const_cast<unsigned char *>(data), pkthdr->caplen, simple_destructor, NULL);
+    else
+        p = Packet::make(fd->_headroom, data, pkthdr->caplen, 0);
 #if TIMESTAMP_NANOSEC && defined(PCAP_TSTAMP_PRECISION_NANO)
     if (fd->_pcap_nanosec)
         ts = Timestamp::make_nsec(pkthdr->ts.tv_sec, pkthdr->ts.tv_usec);
@@ -488,6 +500,7 @@ FromDevice_get_packet(u_char* clientdata,
         ts = Timestamp::make_usec(pkthdr->ts.tv_sec, pkthdr->ts.tv_usec);
     fd->emit_packet(p, pkthdr->len - pkthdr->caplen, ts);
 }
+
 }
 CLICK_DECLS
 #endif
