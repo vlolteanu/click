@@ -30,6 +30,15 @@ void FromDevice_get_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
 }
 #endif
 
+#if FROMDEVICE_ALLOW_NETMAP
+# include <click/task.hh>
+extern "C" {
+void FromDevice_get_packet_netmap_zero_copy(u_char*, const struct pcap_pkthdr*, const u_char*, NetmapInfo::BufferInfo *);
+}
+#endif
+
+
+
 CLICK_DECLS
 
 /*
@@ -241,6 +250,9 @@ class FromDevice : public Element { public:
 #if FROMDEVICE_ALLOW_PCAP || FROMDEVICE_ALLOW_NETMAP
     friend void FromDevice_get_packet(u_char*, const struct pcap_pkthdr*,
                                       const u_char*);
+#endif
+#if FROMDEVICE_ALLOW_NETMAP
+    friend void FromDevice_get_packet_netmap_zero_copy(u_char*, const struct pcap_pkthdr*, const u_char*, NetmapInfo::BufferInfo *);
 #endif
 
     bool _force_ip;

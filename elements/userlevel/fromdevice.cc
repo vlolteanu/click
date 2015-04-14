@@ -505,6 +505,28 @@ FromDevice_get_packet(u_char* clientdata,
 CLICK_DECLS
 #endif
 
+#if FROMDEVICE_ALLOW_NETMAP
+CLICK_ENDDECLS
+extern "C" {
+
+void
+FromDevice_get_packet_netmap_zero_copy(u_char* clientdata, const struct pcap_pkthdr* pkthdr, const u_char* data, NetmapInfo::BufferInfo *bi);
+{
+    FromDevice *fd = (FromDevice *) clientdata;
+    WritablePacket *p = Packet::make(const_cast<unsigned char *>(data), pkthdr->caplen, NetmapInfo::buffer_destructor, bi);
+    Timestamp ts = Timestamp::uninitialized_t();
+#if TIMESTAMP_NANOSEC && defined(PCAP_TSTAMP_PRECISION_NANO)
+    if (fd->_pcap_nanosec)
+        ts = Timestamp::make_nsec(pkthdr->ts.tv_sec, pkthdr->ts.tv_usec);
+    else
+#endif
+        ts = Timestamp::make_usec(pkthdr->ts.tv_sec, pkthdr->ts.tv_usec);
+    fd->emit_packet(p, pkthdr->len - pkthdr->caplen, ts);
+}
+
+}
+CLICK_DECLS
+#endif
 
 void
 FromDevice::selected(int, int)
@@ -515,8 +537,17 @@ FromDevice::selected(int, int)
 #if FROMDEVICE_ALLOW_NETMAP
     if (_method == method_netmap) {
 	// Read and push() at most one burst of packets.
-	int r = _netmap.dispatch(_burst,
-		reinterpret_cast<nm_cb_t>(FromDevice_get_packet), (u_char *) this);
+	int r;
+        if (_zero_copy)
+        {
+            r = _netmap.dispatch_zero_copy(_burst,
+                    reinterpret_cast<NetmapInfo::ZeroCopyCallback>(FromDevice_get_packet_netmap_zero_copy), (u_char *) this);
+        }
+        else
+        {
+            r = _netmap.dispatch(_burst,
+                    reinterpret_cast<nm_cb_t>(FromDevice_get_packet), (u_char *) this);
+        }
 	if (r > 0) {
 	    _count += r;
 	    _task.reschedule();
@@ -578,8 +609,16 @@ FromDevice::run_task(Task *)
 # if FROMDEVICE_ALLOW_NETMAP
     if (_method == method_netmap) {
 	// Read and push() at most one burst of packets.
-	r = _netmap.dispatch(_burst,
-		reinterpret_cast<nm_cb_t>(FromDevice_get_packet), (u_char *) this);
+        if (_zero_copy)
+        {
+            r = _netmap.dispatch_zero_copy(_burst,
+                    reinterpret_cast<NetmapInfo::ZeroCopyCallback>(FromDevice_get_packet_netmap_zero_copy), (u_char *) this);
+        }
+        else
+        {
+            r = _netmap.dispatch(_burst,
+                    reinterpret_cast<nm_cb_t>(FromDevice_get_packet), (u_char *) this);
+        }
 	if (r < 0 && ++_pcap_complaints < 5)
 	    ErrorHandler::default_handler()->error("%p{element}: %s",
 			this, "nm_dispatch failed");
