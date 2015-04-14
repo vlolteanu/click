@@ -16,16 +16,16 @@ typedef void (*nm_cb_t)(u_char *, const struct nm_pkthdr *, const u_char *d);
 #include <click/error.hh>
 CLICK_DECLS
 
+struct NetmapBufferInfo
+{
+    struct nm_desc *desc;
+    netmap_slot *slot;
+};
+
 /* a netmap port as returned by nm_open */
 class NetmapInfo { public:
 
-        struct BufferInfo
-        {
-            nm_desc *desc;
-            netmap_slot *slot;
-        };
-        
-	typedef void (*ZeroCopyCallback)(u_char *, const struct nm_pkthdr *, const u_char *d, BufferInfo *bi);
+	typedef void (*ZeroCopyCallback)(u_char *, const struct nm_pkthdr *, const u_char *d, NetmapBufferInfo *bi);
 
         struct nm_desc *desc;
 	class NetmapInfo *parent;	/* same pool */

@@ -147,7 +147,7 @@ swap_nm_buffers(netmap_slot *src_slot, netmap_slot dst_slot)
 bool
 NetmapInfo::send_packet(Packet *p, int noutputs)
 {
-    BufferInfo *bi = reinterpret_cast<BufferInfo *>(p->buffer_destructor_argument());
+    NetmapBufferInfo *bi = reinterpret_cast<NetmapBufferInfo *>(p->buffer_destructor_argument());
     
     if (NetmapInfo::is_netmap_buffer(p) && !p->shared() && bi->desc->mem == desc->mem)
     {
