@@ -154,12 +154,12 @@ NetmapInfo::send_packet(Packet *p, int noutputs)
         for (c = 0; c < n ; c++) {
             /* compute current ring to use */
             struct netmap_ring *ring;
-            uint32_t i, idx;
+            uint32_t i;
             uint32_t ri = desc->cur_tx_ring + c;
             
             if (ri > desc->last_tx_ring)
-                ri = d->first_tx_ring;
-            ring = NETMAP_TXRING(d->nifp, ri);
+                ri = desc->first_tx_ring;
+            ring = NETMAP_TXRING(desc->nifp, ri);
             if (nm_ring_empty(ring)) {
                 continue;
             }
@@ -194,7 +194,7 @@ NetmapInfo::close(int fd)
 }
 
 void
-NetmapInfo::buffer_destructor(unsigned char *buf, size_t, void *arg)
+NetmapInfo::buffer_destructor(unsigned char *, size_t, void *)
 {
 }
 
