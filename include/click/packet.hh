@@ -97,6 +97,9 @@ class Packet { public:
     buffer_destructor_type buffer_destructor() const {
 	return _destructor;
     }
+    void *buffer_destructor_argument() const {
+        return _destructor_argument;
+    }
     void reset_buffer() {
 	assert(!shared());
 	_head = _data = _tail = _end = 0;
