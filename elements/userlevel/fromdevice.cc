@@ -510,7 +510,7 @@ CLICK_ENDDECLS
 extern "C" {
 
 void
-FromDevice_get_packet_netmap_zero_copy(u_char* clientdata, const struct pcap_pkthdr* pkthdr, const u_char* data, struct NetmapBufferInfo *bi);
+FromDevice_get_packet_netmap_zero_copy(u_char* clientdata, const struct pcap_pkthdr* pkthdr, const u_char* data, struct NetmapBufferInfo *bi)
 {
     FromDevice *fd = (FromDevice *) clientdata;
     WritablePacket *p = Packet::make(const_cast<unsigned char *>(data), pkthdr->caplen, NetmapInfo::buffer_destructor, bi);
