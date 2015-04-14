@@ -85,7 +85,7 @@ NetmapInfo::dispatch(int count, nm_cb_t cb, u_char *arg)
 }
 
 int
-NetmapInfo::dispatch_zero_copy(int burst, ZeroCopyCallback cb, u_char *arg)
+NetmapInfo::dispatch_zero_copy(int cnt, ZeroCopyCallback cb, u_char *arg)
 {
     /* shamelessly copied from nm_dispatch */
     int n = desc->last_rx_ring - desc->first_rx_ring + 1;
