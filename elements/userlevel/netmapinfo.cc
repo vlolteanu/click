@@ -88,9 +88,9 @@ int
 NetmapInfo::dispatch_zero_copy(int burst, ZeroCopyCallback cb, u_char *arg)
 {
     /* shamelessly copied from nm_dispatch */
-    int n = d->last_rx_ring - d->first_rx_ring + 1;
-    int c, got = 0, ri = d->cur_rx_ring;
-    BufferInfo bi;
+    int n = desc->last_rx_ring - desc->first_rx_ring + 1;
+    int c, got = 0, ri = desc->cur_rx_ring;
+    NetmapBufferInfo bi;
     
     if (cnt == 0)
     cnt = -1;
@@ -102,25 +102,25 @@ NetmapInfo::dispatch_zero_copy(int burst, ZeroCopyCallback cb, u_char *arg)
         /* compute current ring to use */
         struct netmap_ring *ring;
     
-        ri = d->cur_rx_ring + c;
-        if (ri > d->last_rx_ring)
-        ri = d->first_rx_ring;
-        ring = NETMAP_RXRING(d->nifp, ri);
+        ri = desc->cur_rx_ring + c;
+        if (ri > desc->last_rx_ring)
+        ri = desc->first_rx_ring;
+        ring = NETMAP_RXRING(desc->nifp, ri);
         for ( ; !nm_ring_empty(ring) && cnt != got; got++) {
             u_int i = ring->cur;
             u_int idx = ring->slot[i].buf_idx;
             u_char *buf = (u_char *)NETMAP_BUF(ring, idx);
             
             // __builtin_prefetch(buf);
-            d->hdr.len = d->hdr.caplen = ring->slot[i].len;
-            d->hdr.ts = ring->ts;
+            desc->hdr.len = desc->hdr.caplen = ring->slot[i].len;
+            desc->hdr.ts = ring->ts;
             bi.desc = desc;
             bi.slot = &ring->slot[i];
-            cb(arg, &d->hdr, buf, &bi);
+            cb(arg, &desc->hdr, buf, &bi);
             ring->head = ring->cur = nm_ring_next(ring, i);
         }
     }
-    d->cur_rx_ring = ri;
+    desc->cur_rx_ring = ri;
     return got;
 }
 
