@@ -127,9 +127,6 @@ NetmapInfo::dispatch_zero_copy(int cnt, ZeroCopyCallback cb, u_char *arg)
 static void
 swap_nm_buffers(netmap_slot *src_slot, netmap_slot dst_slot)
 {
-    netmap_slot *src_slot = &src_ring->slot[src_slot];
-    netmap_slot *dst_slot = &dst_ring->slot[dst_slot];
-    
     if (src_slot->buf_idx < 2 || dst_slot->buf_idx < 2) {
         return;
     }
