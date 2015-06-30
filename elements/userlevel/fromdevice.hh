@@ -133,6 +133,10 @@ Integer. Maximum number of packets to read per scheduling. Defaults to 1.
 
 Boolean. If false, then do not timestamp packets. Defaults to true.
 
+=item ZERO_COPY
+
+Boolean. If true, use zero-copy, if possible. Defaults to false.
+
 =back
 
 =e
@@ -259,6 +263,7 @@ class FromDevice : public Element { public:
     bool _outbound : 1;
     bool _timestamp : 1;
     int _was_promisc : 2;
+    bool _zero_copy : 1;
     int _snaplen;
     uint16_t _protocol;
     unsigned _headroom;
