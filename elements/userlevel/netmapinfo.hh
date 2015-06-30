@@ -87,6 +87,8 @@ class NetmapBufQ {
 /* a netmap port as returned by nm_open */
 class NetmapInfo { public:
 
+	typedef void (*nm_cb_zero_t)(u_char *, const struct nm_pkthdr *, const u_char *d, netmap_slot *slot);
+	
 	struct nm_desc *desc;
 	class NetmapInfo *parent;	/* same pool */
 	class NetmapBufQ bufq;		/* free buffer queue */
@@ -108,6 +110,7 @@ class NetmapInfo { public:
         bool send_packet(Packet *p, int noutputs);
 
 	int dispatch(int burst, nm_cb_t cb, u_char *arg);
+	int dispatch_zero_copy(int burst, nm_cb_zero_t cb, u_char *arg);
 
 #if 0
 	// XXX return a buffer to the ring
@@ -124,6 +127,8 @@ class NetmapInfo { public:
 		return false;
 	}
 #endif
+
+	static void buffer_destructor_zero_copy(unsigned char *, size_t, void *);
 
     static bool is_netmap_buffer(Packet *p) {
 	return p->buffer_destructor() == buffer_destructor;
