@@ -502,7 +502,7 @@ void
 FromDevice_get_packet_netmap_zero_copy(u_char* clientdata, const struct pcap_pkthdr* pkthdr, const u_char* data, struct netmap_slot* slot)
 {
     FromDevice *fd = (FromDevice *) clientdata;
-    WritablePacket *p = Packet::make(const_cast<unsigned char *>(data), pkthdr->caplen, NetmapInfo::buffer_destructor_zero_copy, slot);
+    WritablePacket *p = Packet::make(const_cast<unsigned char *>(data), pkthdr->caplen, NetmapInfo::buffer_destructor_zero_copy, slot, 2048 - pkthdr->caplen); //TODO: get actual tailroom
     Timestamp ts = Timestamp::uninitialized_t();
 #if TIMESTAMP_NANOSEC && defined(PCAP_TSTAMP_PRECISION_NANO)
     if (fd->_pcap_nanosec)

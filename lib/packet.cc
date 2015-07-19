@@ -591,7 +591,7 @@ Packet::make(uint32_t headroom, const void *data,
  * null. */
 WritablePacket *
 Packet::make(unsigned char *data, uint32_t length,
-	     buffer_destructor_type destructor, void* argument)
+	     buffer_destructor_type destructor, void* argument, uint32_t tailroom)
 {
 # if HAVE_CLICK_PACKET_POOL
     WritablePacket *p = WritablePacket::pool_allocate(false);
@@ -601,7 +601,8 @@ Packet::make(unsigned char *data, uint32_t length,
     if (p) {
 	p->initialize();
 	p->_head = p->_data = data;
-	p->_tail = p->_end = data + length;
+	p->_tail = data + length;
+	p->_end = p->_tail + tailroom;
 	p->_destructor = destructor;
         p->_destructor_argument = argument;
     }
