@@ -47,7 +47,7 @@
 
 #if FROMDEVICE_ALLOW_LINUX
 # include <sys/socket.h>
-# include <net/if.h>
+# include <linux/if.h>
 # include <features.h>
 # include <linux/if_packet.h>
 # include <net/ethernet.h>

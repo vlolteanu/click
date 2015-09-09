@@ -25,7 +25,7 @@
 #include <click/etheraddress.hh>
 #if __FreeBSD__ >= 4
 # include <net/ethernet.h>
-# include <net/if.h>
+# include <linux/if.h>
 # if __FreeBSD__ >= 6
 #  include <net80211/ieee80211.h>
 # else

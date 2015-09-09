@@ -7,7 +7,7 @@
 CLICK_CXX_PROTECT
 #define DEVICE_POLLING
 #include <sys/socket.h>
-#include <net/if.h>
+#include <linux/if.h>
 #include <net/if_var.h>
 #include <net/netisr.h>
 #include <sys/limits.h>

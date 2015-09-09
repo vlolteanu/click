@@ -11,7 +11,7 @@
    later versions do */
 #ifndef CLICK_NET_IF_H
 #define CLICK_NET_IF_H
-#include <net/if.h>
+#include <linux/if.h>
 #endif
 #endif
 CLICK_DECLS

@@ -37,7 +37,7 @@
 # if HAVE_IFADDRS_H
 #  include <sys/types.h>
 #  include <sys/socket.h>
-#  include <net/if.h>
+#  include <linux/if.h>
 #  if HAVE_NET_IF_TYPES_H
 #   include <net/if_types.h>
 #  endif
@@ -49,7 +49,7 @@
 #  endif
 #  include <ifaddrs.h>
 # elif defined(__linux__)
-#  include <net/if.h>
+#  include <linux/if.h>
 #  include <sys/ioctl.h>
 #  include <net/if_arp.h>
 #  include <click/userutils.hh>
@@ -72,7 +72,7 @@ CLICK_CXX_UNPROTECT
 # include <click/cxxprotect.h>
 CLICK_CXX_PROTECT
 # include <sys/socket.h>
-# include <net/if.h>
+# include <linux/if.h>
 # include <net/if_dl.h>
 CLICK_CXX_UNPROTECT
 # include <click/cxxunprotect.h>

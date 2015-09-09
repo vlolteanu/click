@@ -2,7 +2,7 @@
 #define CLICK_NETMAPINFO_HH 1
 
 #if HAVE_NET_NETMAP_H
-#include <net/if.h>
+#include <linux/if.h>
 #include <net/netmap.h>
 #include <net/netmap_user.h>
 

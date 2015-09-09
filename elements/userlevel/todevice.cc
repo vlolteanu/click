@@ -40,12 +40,12 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <sys/ioctl.h>
-# include <net/if.h>
+# include <linux/if.h>
 #endif
 #if TODEVICE_ALLOW_LINUX
 # include <sys/socket.h>
 # include <sys/ioctl.h>
-# include <net/if.h>
+# include <linux/if.h>
 # include <net/if_packet.h>
 # include <features.h>
 # if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 1

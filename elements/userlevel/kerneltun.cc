@@ -46,7 +46,7 @@
 # define KERNELTAP_NET 1
 #endif
 
-#include <net/if.h>
+#include <linux/if.h>
 #if HAVE_NET_IF_TUN_H
 # include <net/if_tun.h>
 #elif HAVE_LINUX_IF_TUN_H
