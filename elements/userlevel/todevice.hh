@@ -104,7 +104,7 @@ class ToDevice : public Element { public:
 
     bool run_task(Task *);
     void selected(int fd, int mask);
-    void push(int port, Packet*);
+    void push(int, Packet *p);
 
   protected:
 
